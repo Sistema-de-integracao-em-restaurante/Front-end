@@ -11,7 +11,7 @@ const IngredientForm = () => {
     const fetchIngredients = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('https://popular-candace-mayrink-0b01383d.koyeb.app/ingrediente');
+        const response = await axios.get('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/ingrediente');
         console.log(response.data); // Verifica se os dados foram recebidos corretamente
         setIngredientList(response.data);
       } catch (error) {
@@ -33,7 +33,7 @@ const IngredientForm = () => {
     e.preventDefault();
     try {
       console.log('Dados do ingrediente:', ingredient); // Verifica se os dados do ingrediente estão corretos
-      const response = await axios.post('https://popular-candace-mayrink-0b01383d.koyeb.app/ingrediente', ingredient);
+      const response = await axios.post('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/ingrediente', ingredient);
       console.log('Resposta da requisição POST:', response.data); // Verifica se a requisição POST foi bem-sucedida
       setIngredientList(prevList => [...prevList, response.data]);
       setIngredient({ nome: '', descricao: '' });
@@ -66,7 +66,9 @@ const IngredientForm = () => {
             ) : (
               <ul className="list-group">
                 {ingredientList.map((ingredient, index) => (
-                  <li key={index} className="list-group-item">{ingredient.nome}</li>
+                  <li key={index} className="list-group-item">
+                    <strong>{ingredient.nome}</strong>: {ingredient.descricao}
+                  </li>
                 ))}
               </ul>
             )}
