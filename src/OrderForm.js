@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const OrderForm = ({ onDishAdded }) => {
   const [formData, setFormData] = useState({
@@ -10,9 +11,20 @@ const OrderForm = ({ onDishAdded }) => {
 
   const [dishInput, setDishInput] = useState('');
   const [quantityInput, setQuantityInput] = useState('');
+  const [dishOptions, setDishOptions] = useState([]);
 
-  // Lista de opções de pratos pré-definidos
-  const predefinedDishes = ['Pizza', 'Hamburguer', 'Macarrão'];
+  useEffect(() => {
+    const fetchDishes = async () => {
+      try {
+        const response = await axios.get('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/prato');
+        setDishOptions(response.data);
+      } catch (error) {
+        console.error('Erro ao buscar pratos:', error);
+      }
+    };
+
+    fetchDishes();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,12 +45,17 @@ const OrderForm = ({ onDishAdded }) => {
   const handleAddDish = (e) => {
     e.preventDefault();
     if (dishInput && quantityInput) {
-      setFormData(prevData => ({
-        ...prevData,
-        dishes: [...prevData.dishes, { name: dishInput, quantity: quantityInput }],
-      }));
-      setDishInput('');
-      setQuantityInput('');
+      const selectedDish = dishOptions.find(dish => dish.nome === dishInput);
+      if (selectedDish) {
+        setFormData(prevData => ({
+          ...prevData,
+          dishes: [...prevData.dishes, { name: dishInput, quantity: quantityInput }],
+        }));
+        setDishInput('');
+        setQuantityInput('');
+      } else {
+        console.error('Prato não encontrado.');
+      }
     }
   };
 
@@ -78,8 +95,8 @@ const OrderForm = ({ onDishAdded }) => {
               <div className="input-group rounded">
                 <select className="form-select rounded" value={dishInput} onChange={handleDishChange}>
                   <option value="">Selecione um prato</option>
-                  {predefinedDishes.map((dish, index) => (
-                    <option key={index} value={dish}>{dish}</option>
+                  {dishOptions.map((dish, index) => (
+                    <option key={index} value={dish.nome}>{dish.nome}</option>
                   ))}
                 </select>
                 <input type="text" className="form-control rounded" id="quantity" name="quantity" value={quantityInput} onChange={handleQuantityChange} placeholder="Quantidade" />
