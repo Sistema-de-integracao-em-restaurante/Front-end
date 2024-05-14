@@ -1,35 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const OrderList = ({ orders, dishOptions }) => (
-  <div className="container mt-5"> {/* Adicionado container para corresponder à largura do formulário */}
-    <div className="row justify-content-center">
-    <div className="col-md-12"> {/* Modificado para col-md-8 */}
-        <h2 className="text-center">Lista de Pedidos</h2>
-        <ul className="list-group">
-          {orders.map(order => (
-            <li key={order.id} className="list-group-item">
-              <strong>Cliente:</strong> {order.nome_cliente}<br />
-              <strong>Forma de Pagamento:</strong> {order.forma_pagamento}<br />
-              <strong>Pratos:</strong>
-              <ul className="list-group">
-                {order.pratos.map(prato => {
-                  const selectedDish = dishOptions.find(dish => dish.id === prato.id_prato);
-                  return (
-                    <li key={prato.id_prato} className="list-group-item">
-                      {selectedDish ? `${selectedDish.nome} - ${prato.quantidade_prato}` : 'Prato não encontrado'} 
-                    </li>
-                  );
-                })}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  </div>
-);
-
 const OrderForm = ({ onDishAdded }) => {
   const [formData, setFormData] = useState({
     customerName: '',
@@ -149,45 +120,64 @@ const OrderForm = ({ onDishAdded }) => {
               <label htmlFor="paymentMethod" className="form-label">Forma de Pagamento</label>
               <select className="form-select rounded" id="paymentMethod" name="paymentMethod" value={formData.paymentMethod} onChange={handleChange} required>
                 <option value="">Selecione uma forma de pagamento</option>
-<option value="Dinheiro">Dinheiro</option>
-<option value="Débito">Débito</option>
-<option value="Crédito">Crédito</option>
-</select>
-</div>
-<div className="mb-3 rounded">
-<label htmlFor="dish" className="form-label">Prato</label>
-<div className="input-group rounded">
-<select className="form-select rounded" value={dishInput} onChange={handleDishChange}>
-<option value="">Selecione um prato</option>
-{dishOptions.map((dish, index) => (
-<option key={index} value={dish.id}>{dish.nome}</option>
-))}
-</select>
-<input type="text" className="form-control rounded" id="quantity" name="quantity" value={quantityInput} onChange={handleQuantityChange} placeholder="Quantidade" />
-<button onClick={handleAddDish} className="btn btn-danger">Adicionar</button>
-</div>
-</div>
-{formData.dishes.length > 0 && (
-<div className="mb-3">
-<label className="form-label">Pratos Adicionados:</label>
-<ul className="list-group">
-{formData.dishes.map((dish, index) => (
-<li key={index} className="list-group-item">{dish.name} - {dish.quantity}</li>
-))}
-</ul>
-</div>
-)}
-<button type="submit" className="btn btn-danger">Enviar</button>
-</form>
-</div>
-</div>
-<div className="row justify-content-center mt-5">
-<div className="col-md-6"> {/* Modificado para col-md-6 */}
-<OrderList orders={orders} dishOptions={dishOptions} />
-</div>
-</div>
-</div>
-);
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Débito">Débito</option>
+                <option value="Crédito">Crédito</option>
+              </select>
+            </div>
+            <div className="mb-3 rounded">
+              <label htmlFor="dish" className="form-label">Prato</label>
+              <div className="input-group rounded">
+                <select className="form-select rounded" value={dishInput} onChange={handleDishChange}>
+                  <option value="">Selecione um prato</option>
+                  {dishOptions.map((dish, index) => (
+                    <option key={index} value={dish.id}>{dish.nome}</option>
+                  ))}
+                </select>
+                <input type="text" className="form-control rounded" id="quantity" name="quantity" value={quantityInput} onChange={handleQuantityChange} placeholder="Quantidade" />
+                <button onClick={handleAddDish} className="btn btn-danger">Adicionar</button>
+              </div>
+            </div>
+            {formData.dishes.length > 0 && (
+              <div className="mb-3">
+                <label className="form-label">Pratos Adicionados:</label>
+                <ul className="list-group">
+                  {formData.dishes.map((dish, index) => (
+                    <li key={index} className="list-group-item">{dish.name} - {dish.quantity}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <button type="submit" className="btn btn-danger">Enviar</button>
+          </form>
+        </div>
+      </div>
+      <div className="row justify-content-center mt-5">
+        <div className="col-md-8">
+          <h2 className="text-center mb-4">Pedidos Cadastrados</h2>
+          {orders.length > 0 ? (
+            <ul className="list-group">
+              {orders.map((order, index) => (
+                <li key={index} className="list-group-item">
+                  <h5>Pedido #{order.id}</h5>
+                  <p>Cliente: {order.nome_cliente}</p>
+                  <p>Forma de Pagamento: {order.forma_pagamento}</p>
+                  <p>Pratos:</p>
+                  <ul>
+                    {order.pratos.map((dish, dishIndex) => (
+                      <li key={dishIndex}>{dish.nome} - Quantidade: {dish.quantidade}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-center">Nenhum pedido cadastrado.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default OrderForm;
