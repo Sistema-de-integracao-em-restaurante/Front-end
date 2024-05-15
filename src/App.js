@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import dos estilos do Bootstrap
+import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Menu from './Menu';
 import IngredientForm from './IngredientForm';
 import DishForm from './DishForm';
