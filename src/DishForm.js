@@ -154,7 +154,7 @@ const DishForm = ({ onDishAdded }) => {
         </div>
       </div>
       {/* Aqui é onde a lista de pratos será exibida */}
-      <div className="row justify-content-center mt-5">
+      <div className="row justify-content-center mt-5" style={{ marginBottom: '20px' }}>
         <div className="col-md-6">
           <h2 className="text-center mb-4">Pratos Cadastrados</h2>
           <ul className="list-group">

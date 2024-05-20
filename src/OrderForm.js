@@ -8,7 +8,7 @@ const OrderList = ({ orders, dishOptions }) => (
         <h2 className="text-center">Lista de Pedidos</h2>
         <ul className="list-group">
           {orders.map(order => (
-            <li key={order.id} className="list-group-item">
+           <li key={order.id} className="list-group-item" style={{ marginBottom: '1rem' }}>
               <strong>Cliente:</strong> {order.nome_cliente}<br />
               <strong>Forma de Pagamento:</strong> {order.forma_pagamento}<br />
               <strong>Pratos:</strong>
