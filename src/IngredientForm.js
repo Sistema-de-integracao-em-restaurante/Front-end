@@ -5,14 +5,14 @@ const IngredientForm = () => {
   const [ingredient, setIngredient] = useState({ nome: '', descricao: '' });
   const [ingredientList, setIngredientList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(''); // Novo estado para a mensagem
 
   useEffect(() => {
-    // Função para buscar ingredientes disponíveis ao montar o componente
     const fetchIngredients = async () => {
       try {
         setLoading(true);
         const response = await axios.get('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/ingrediente');
-        console.log(response.data); // Verifica se os dados foram recebidos corretamente
+        console.log(response.data);
         setIngredientList(response.data);
       } catch (error) {
         console.error('Erro ao buscar ingredientes:', error);
@@ -22,7 +22,7 @@ const IngredientForm = () => {
     };
 
     fetchIngredients();
-  }, []); // Executa apenas uma vez ao montar o componente
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -32,13 +32,15 @@ const IngredientForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Dados do ingrediente:', ingredient); // Verifica se os dados do ingrediente estão corretos
+      console.log('Dados do ingrediente:', ingredient);
       const response = await axios.post('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/ingrediente', ingredient);
-      console.log('Resposta da requisição POST:', response.data); // Verifica se a requisição POST foi bem-sucedida
+      console.log('Resposta da requisição POST:', response.data);
       setIngredientList(prevList => [...prevList, response.data]);
       setIngredient({ nome: '', descricao: '' });
+      setMessage('Ingrediente cadastrado com sucesso!'); // Atualiza a mensagem
     } catch (error) {
-      console.error('Erro ao cadastrar ingrediente:', error); // Imprime o erro caso ocorra algum problema
+      console.error('Erro ao cadastrar ingrediente:', error);
+      setMessage('Erro ao cadastrar ingrediente. Tente novamente.'); // Atualiza a mensagem em caso de erro
     }
   };
 
@@ -47,6 +49,11 @@ const IngredientForm = () => {
       <div className="row justify-content-center">
         <div className="col-md-6">
           <h2 className="text-center mb-4">Cadastrar Ingredientes</h2>
+          {message && (
+            <div className="alert alert-info" role="alert">
+              {message}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="mx-auto">
             <div className="mb-3">
               <label htmlFor="nome" className="form-label">Nome do Ingrediente</label>

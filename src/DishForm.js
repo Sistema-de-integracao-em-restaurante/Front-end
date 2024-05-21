@@ -12,6 +12,7 @@ const DishForm = ({ onDishAdded }) => {
   const [selectedIngredient, setSelectedIngredient] = useState('');
   const [quantityInput, setQuantityInput] = useState('');
   const [dishes, setDishes] = useState([]);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -101,6 +102,8 @@ const DishForm = ({ onDishAdded }) => {
         price: '',
         ingredients: [],
       });
+      setSuccessMessage('Prato cadastrado com sucesso!'); // Atualiza a mensagem de sucesso
+      setTimeout(() => setSuccessMessage(''), 5000); // Remove a mensagem após 5 segundos
     } catch (error) {
       console.error('Erro ao cadastrar prato:', error);
     }
@@ -111,6 +114,11 @@ const DishForm = ({ onDishAdded }) => {
       <div className="row justify-content-center">
         <div className="col-md-6">
           <h2 className="text-center mb-4">Cadastrar Prato</h2>
+          {successMessage && (
+            <div className="alert alert-success" role="alert">
+              {successMessage}
+            </div>
+          )}
           {/* Formulário para adicionar prato */}
           <form onSubmit={handleSubmit}>
             <div className="mb-3 rounded">

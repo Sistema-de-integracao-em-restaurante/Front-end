@@ -7,6 +7,7 @@ import DishForm from './DishForm';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import OrderForm from './OrderForm';
 
+import './index.css'; // Import do arquivo CSS global
 
 const App = () => {
   const [dishes, setDishes] = useState([]);

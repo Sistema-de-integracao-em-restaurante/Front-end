@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const OrderList = ({ orders, dishOptions }) => (
-  <div className="container mt-5"> {/* Adicionado container para corresponder à largura do formulário */}
+  <div className="container mt-5">
     <div className="row justify-content-center">
-    <div className="col-md-12"> {/* Modificado para col-md-8 */}
+      <div className="col-md-12">
         <h2 className="text-center">Lista de Pedidos</h2>
         <ul className="list-group">
           {orders.map(order => (
-           <li key={order.id} className="list-group-item" style={{ marginBottom: '1rem' }}>
+            <li key={order.id} className="list-group-item">
               <strong>Cliente:</strong> {order.nome_cliente}<br />
               <strong>Forma de Pagamento:</strong> {order.forma_pagamento}<br />
               <strong>Pratos:</strong>
@@ -17,7 +17,7 @@ const OrderList = ({ orders, dishOptions }) => (
                   const selectedDish = dishOptions.find(dish => dish.id === prato.id_prato);
                   return (
                     <li key={prato.id_prato} className="list-group-item">
-                      {selectedDish ? `${selectedDish.nome} - ${prato.quantidade_prato}` : 'Prato não encontrado'} 
+                      {selectedDish ? `${selectedDish.nome} - ${prato.quantidade_prato}` : 'Prato não encontrado'}
                     </li>
                   );
                 })}
@@ -101,6 +101,7 @@ const OrderForm = ({ onDishAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('Form Data before submit:', formData);
     try {
       const orderResponse = await axios.post('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/pedido', {
         nome_cliente: formData.customerName,
@@ -108,13 +109,15 @@ const OrderForm = ({ onDishAdded }) => {
       });
 
       const orderId = orderResponse.data.id;
+      console.log('Order Response:', orderResponse.data);
 
       await Promise.all(
         formData.dishes.map(async (dish) => {
-          await axios.post(`https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/pedido/${orderId}/prato`, {
+          const response = await axios.post(`https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/pedido/${orderId}/prato`, {
             id_prato: dish.id,
             quantidade_prato: dish.quantity,
           });
+          console.log('Dish Response:', response.data);
         })
       );
 
@@ -126,12 +129,11 @@ const OrderForm = ({ onDishAdded }) => {
         dishes: [],
       });
 
-      // Fetch the updated list of orders
       const updatedOrders = await axios.get('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/pedido');
       setOrders(updatedOrders.data);
 
     } catch (error) {
-      console.error('Erro ao enviar pedido:', error);
+      console.error('Erro ao enviar pedido:', error.response ? error.response.data : error.message);
     }
   };
 
@@ -149,45 +151,45 @@ const OrderForm = ({ onDishAdded }) => {
               <label htmlFor="paymentMethod" className="form-label">Forma de Pagamento</label>
               <select className="form-select rounded" id="paymentMethod" name="paymentMethod" value={formData.paymentMethod} onChange={handleChange} required>
                 <option value="">Selecione uma forma de pagamento</option>
-<option value="Dinheiro">Dinheiro</option>
-<option value="Débito">Débito</option>
-<option value="Crédito">Crédito</option>
-</select>
-</div>
-<div className="mb-3 rounded">
-<label htmlFor="dish" className="form-label">Prato</label>
-<div className="input-group rounded">
-<select className="form-select rounded" value={dishInput} onChange={handleDishChange}>
-<option value="">Selecione um prato</option>
-{dishOptions.map((dish, index) => (
-<option key={index} value={dish.id}>{dish.nome}</option>
-))}
-</select>
-<input type="text" className="form-control rounded" id="quantity" name="quantity" value={quantityInput} onChange={handleQuantityChange} placeholder="Quantidade" />
-<button onClick={handleAddDish} className="btn btn-danger">Adicionar</button>
-</div>
-</div>
-{formData.dishes.length > 0 && (
-<div className="mb-3">
-<label className="form-label">Pratos Adicionados:</label>
-<ul className="list-group">
-{formData.dishes.map((dish, index) => (
-<li key={index} className="list-group-item">{dish.name} - {dish.quantity}</li>
-))}
-</ul>
-</div>
-)}
-<button type="submit" className="btn btn-danger">Enviar</button>
-</form>
-</div>
-</div>
-<div className="row justify-content-center mt-5">
-<div className="col-md-6"> {/* Modificado para col-md-6 */}
-<OrderList orders={orders} dishOptions={dishOptions} />
-</div>
-</div>
-</div>
-);
+                <option value="Dinheiro">Dinheiro</option>
+                <option value="Debito">Débito</option>
+                <option value="Credito">Crédito</option>
+              </select>
+            </div>
+            <div className="mb-3 rounded">
+              <label htmlFor="dish" className="form-label">Prato</label>
+              <div className="input-group rounded">
+                <select className="form-select rounded" value={dishInput} onChange={handleDishChange}>
+                  <option value="">Selecione um prato</option>
+                  {dishOptions.map((dish, index) => (
+                    <option key={index} value={dish.id}>{dish.nome}</option>
+                  ))}
+                </select>
+                <input type="text" className="form-control rounded" id="quantity" name="quantity" value={quantityInput} onChange={handleQuantityChange} placeholder="Quantidade" />
+                <button onClick={handleAddDish} className="btn btn-danger">Adicionar</button>
+              </div>
+            </div>
+            {formData.dishes.length > 0 && (
+              <div className="mb-3">
+                <label className="form-label">Pratos Adicionados:</label>
+                <ul className="list-group">
+                  {formData.dishes.map((dish, index) => (
+                    <li key={index} className="list-group-item">{dish.name} - {dish.quantity}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <button type="submit" className="btn btn-danger">Enviar</button>
+          </form>
+        </div>
+      </div>
+      <div className="row justify-content-center mt-5">
+        <div className="col-md-6">
+          <OrderList orders={orders} dishOptions={dishOptions} />
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default OrderForm;

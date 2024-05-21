@@ -121,8 +121,8 @@ const OrderForm = ({ onDishAdded }) => {
               <select className="form-select rounded" id="paymentMethod" name="paymentMethod" value={formData.paymentMethod} onChange={handleChange} required>
                 <option value="">Selecione uma forma de pagamento</option>
                 <option value="Dinheiro">Dinheiro</option>
-                <option value="Débito">Débito</option>
-                <option value="Crédito">Crédito</option>
+                <option value="Debito">Débito</option>
+                <option value="Credito">Crédito</option>
               </select>
             </div>
             <div className="mb-3 rounded">
