@@ -1,36 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const OrderList = ({ orders, dishOptions }) => (
-  <div className="container mt-5">
-    <div className="row justify-content-center">
-      <div className="col-md-12">
-        <h2 className="text-center">Lista de Pedidos</h2>
-        <ul className="list-group">
-          {orders.map(order => (
-            <li key={order.id} className="list-group-item">
-              <strong>Cliente:</strong> {order.nome_cliente}<br />
-              <strong>Forma de Pagamento:</strong> {order.forma_pagamento}<br />
-              <strong>Pratos:</strong>
-              <ul className="list-group">
-                {order.pratos.map(prato => {
-                  const selectedDish = dishOptions.find(dish => dish.id === prato.id_prato);
-                  return (
-                    <li key={prato.id_prato} className="list-group-item">
-                      {selectedDish ? `${selectedDish.nome} - ${prato.quantidade_prato}` : 'Prato não encontrado'}
-                    </li>
-                  );
-                })}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  </div>
-);
-
-const OrderForm = ({ onDishAdded }) => {
+const OrderForm = ({ onDishAdded = () => {} }) => {
   const [formData, setFormData] = useState({
     customerName: '',
     paymentMethod: '',
@@ -87,9 +58,10 @@ const OrderForm = ({ onDishAdded }) => {
       try {
         const selectedDishResponse = await axios.get(`https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/prato/${dishInput}`);
         const selectedDish = selectedDishResponse.data;
+        const totalDishPrice = selectedDish.preco * quantityInput;
         setFormData(prevData => ({
           ...prevData,
-          dishes: [...prevData.dishes, { id: selectedDish.id, name: selectedDish.nome, quantity: quantityInput }],
+          dishes: [...prevData.dishes, { id: selectedDish.id, name: selectedDish.nome, quantity: quantityInput, price: totalDishPrice }],
         }));
         setDishInput('');
         setQuantityInput('');
@@ -101,7 +73,6 @@ const OrderForm = ({ onDishAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form Data before submit:', formData);
     try {
       const orderResponse = await axios.post('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/pedido', {
         nome_cliente: formData.customerName,
@@ -109,31 +80,34 @@ const OrderForm = ({ onDishAdded }) => {
       });
 
       const orderId = orderResponse.data.id;
-      console.log('Order Response:', orderResponse.data);
 
       await Promise.all(
         formData.dishes.map(async (dish) => {
-          const response = await axios.post(`https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/pedido/${orderId}/prato`, {
+          await axios.post(`https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/pedido/${orderId}/prato`, {
             id_prato: dish.id,
             quantidade_prato: dish.quantity,
           });
-          console.log('Dish Response:', response.data);
         })
       );
 
-      console.log('Pedido enviado com sucesso:', orderResponse.data);
-      onDishAdded(orderResponse.data);
+      // Update the total price of the order
+      const updatedOrderResponse = await axios.get(`https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/pedido/${orderId}`);
+      const updatedOrder = updatedOrderResponse.data;
+
+      console.log('Pedido enviado com sucesso:', updatedOrder);
+      onDishAdded(updatedOrder);
       setFormData({
         customerName: '',
         paymentMethod: '',
         dishes: [],
       });
 
+      // Fetch the updated list of orders
       const updatedOrders = await axios.get('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/pedido');
       setOrders(updatedOrders.data);
 
     } catch (error) {
-      console.error('Erro ao enviar pedido:', error.response ? error.response.data : error.message);
+      console.error('Erro ao enviar pedido:', error);
     }
   };
 
@@ -174,7 +148,7 @@ const OrderForm = ({ onDishAdded }) => {
                 <label className="form-label">Pratos Adicionados:</label>
                 <ul className="list-group">
                   {formData.dishes.map((dish, index) => (
-                    <li key={index} className="list-group-item">{dish.name} - {dish.quantity}</li>
+                    <li key={index} className="list-group-item">{dish.name} - {dish.quantity} - R$ {dish.price.toFixed(2)}</li>
                   ))}
                 </ul>
               </div>
@@ -184,8 +158,29 @@ const OrderForm = ({ onDishAdded }) => {
         </div>
       </div>
       <div className="row justify-content-center mt-5">
-        <div className="col-md-6">
-          <OrderList orders={orders} dishOptions={dishOptions} />
+        <div className="col-md-8">
+          <h2 className="text-center mb-4">Pedidos Cadastrados</h2>
+          {orders.length > 0 ? (
+            <ul className="list-group">
+              {orders.map((order, index) => (
+                <li key={index} className="list-group-item">
+                  <h5>Pedido #{order.id}</h5>
+                  <p>Cliente: {order.nome_cliente}</p>
+                  <p>Forma de Pagamento: {order.forma_pagamento}</p>
+                  <p>Status: {order.status}</p>
+                  <p>Preço Total: R$ {order.preco_total_pedido.toFixed(2)}</p>
+                  <p>Pratos:</p>
+                  <ul>
+                    {order.pratos.map((dish, dishIndex) => (
+                      <li key={dishIndex}>{dish.prato.nome} - Quantidade: {dish.quantidade_prato} - Preço Total: R$ {dish.preco_total.toFixed(2)}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-center">Nenhum pedido cadastrado.</p>
+          )}
         </div>
       </div>
     </div>

@@ -3,9 +3,9 @@ import axios from 'axios';
 
 const DishForm = ({ onDishAdded }) => {
   const [dish, setDish] = useState({
-    nome: '',
-    preco: '',
-    ingredientes: [],
+    name: '',
+    price: '',
+    ingredients: [],
   });
 
   const [ingredientOptions, setIngredientOptions] = useState([]);
@@ -59,11 +59,11 @@ const DishForm = ({ onDishAdded }) => {
   const handleAddIngredient = (e) => {
     e.preventDefault();
     if (selectedIngredient && quantityInput) {
-      const selectedIngredientObj = ingredientOptions.find(ingredient => ingredient.id.toString() === selectedIngredient);
+      const selectedIngredientObj = ingredientOptions.find(ingredient => ingredient.nome === selectedIngredient);
       if (selectedIngredientObj) {
         setDish(prevDish => ({
           ...prevDish,
-          ingredientes: [...prevDish.ingredientes, { id_ingrediente: selectedIngredientObj.id, quantidade_ingrediente: parseInt(quantityInput) }],
+          ingredients: [...prevDish.ingredients, { id_ingrediente: selectedIngredientObj.id, quantidade_ingrediente: parseInt(quantityInput) }],
         }));
         setSelectedIngredient('');
         setQuantityInput('');
@@ -78,8 +78,8 @@ const DishForm = ({ onDishAdded }) => {
     try {
       // Cria o novo prato no servidor
       const pratoResponse = await axios.post('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/prato', {
-        nome: dish.nome,
-        preco: parseFloat(dish.preco),
+        nome: dish.name,
+        preco: parseFloat(dish.price),
       });
 
       // Obtém o ID do prato criado
@@ -87,7 +87,7 @@ const DishForm = ({ onDishAdded }) => {
 
       // Associa os ingredientes ao prato
       await Promise.all(
-        dish.ingredientes.map(async (ingredient) => {
+        dish.ingredients.map(async (ingredient) => {
           await axios.post(`https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/prato/${pratoId}/ingrediente`, {
             id_ingrediente: ingredient.id_ingrediente,
             quantidade_ingrediente: ingredient.quantidade_ingrediente,
@@ -95,22 +95,12 @@ const DishForm = ({ onDishAdded }) => {
         })
       );
 
-      // Atualiza o estado dos pratos com o novo prato
-      const novoPrato = {
-        id: pratoId,
-        nome: dish.nome,
-        preco: parseFloat(dish.preco),
-        ingredientes: dish.ingredientes.map(ingredient => ({
-          id_ingrediente: ingredient.id_ingrediente,
-          quantidade_ingrediente: ingredient.quantidade_ingrediente,
-        })),
-      };
-
-      setDishes(prevDishes => [...prevDishes, novoPrato]);
+      console.log('Prato cadastrado com ingredientes:', pratoResponse.data);
+      onDishAdded(pratoResponse.data);
       setDish({
-        nome: '',
-        preco: '',
-        ingredientes: [],
+        name: '',
+        price: '',
+        ingredients: [],
       });
       setSuccessMessage('Prato cadastrado com sucesso!'); // Atualiza a mensagem de sucesso
       setTimeout(() => setSuccessMessage(''), 5000); // Remove a mensagem após 5 segundos
@@ -132,29 +122,24 @@ const DishForm = ({ onDishAdded }) => {
           {/* Formulário para adicionar prato */}
           <form onSubmit={handleSubmit}>
             <div className="mb-3 rounded">
-              <label htmlFor="nome" className="form-label">Nome do Prato</label>
-              <input type="text" className="form-control rounded" id="nome" name="nome" value={dish.nome} onChange={handleChange} required />
+              <label htmlFor="name" className="form-label">Nome do Prato</label>
+              <input type="text" className="form-control rounded" id="name" name="name" value={dish.name} onChange={handleChange} required />
             </div>
             <div className="mb-3 rounded">
-              <label htmlFor="preco" className="form-label">Preço do Prato</label>
+              <label htmlFor="price" className="form-label">Preço do Prato</label>
               <div className="input-group rounded">
                 <span className="input-group-text">R$</span>
-                <input type="number" step="0.01" className="form-control rounded" id="preco" name="preco" value={dish.preco} onChange={handleChange} required />
+                <input type="number" step="0.01" className="form-control rounded" id="price" name="price" value={dish.price} onChange={handleChange} required />
               </div>
             </div>
             {/* Aqui é onde os ingredientes selecionados são exibidos */}
-            {dish.ingredientes.length > 0 && (
+            {dish.ingredients.length > 0 && (
               <div className="mb-3">
                 <label className="form-label">Ingredientes Adicionados:</label>
                 <ul className="list-group">
-                  {dish.ingredientes.map((ingredient, index) => {
-                    const ingredientObj = ingredientOptions.find(opt => opt.id === ingredient.id_ingrediente);
-                    return (
-                      <li key={index} className="list-group-item">
-                        {ingredientObj?.nome} - {ingredient.quantidade_ingrediente} {ingredientObj?.medida}
-                      </li>
-                    );
-                  })}
+                  {dish.ingredients.map((ingredient, index) => (
+                    <li key={index} className="list-group-item">{ingredientOptions.find(opt => opt.id === ingredient.id_ingrediente)?.nome} - {ingredient.quantidade_ingrediente}</li>
+                  ))}
                 </ul>
               </div>
             )}
@@ -165,9 +150,7 @@ const DishForm = ({ onDishAdded }) => {
                 <select className="form-select rounded" value={selectedIngredient} onChange={handleIngredientChange}>
                   <option value="">Selecione um ingrediente</option>
                   {ingredientOptions.map((ingredient, index) => (
-                    <option key={index} value={ingredient.id}>
-                      {ingredient.nome} ({ingredient.medida})
-                    </option>
+                    <option key={index} value={ingredient.nome}>{ingredient.nome}</option>
                   ))}
                 </select>
                 <input type="text" className="form-control rounded" id="quantity" name="quantity" value={quantityInput} onChange={handleQuantityChange} placeholder="Quantidade" />
@@ -185,17 +168,14 @@ const DishForm = ({ onDishAdded }) => {
           <ul className="list-group">
             {dishes.map((dish) => (
               <li key={dish.id} className="list-group-item">
-                {dish.nome} - R${dish.preco.toFixed(2)}
+                {dish.nome} - R${dish.preco}
                 {/* Exibe os ingredientes do prato */}
                 <ul>
-                  {dish.ingredientes.map((ingrediente) => {
-                    const ingredientObj = ingredientOptions.find(opt => opt.id === ingrediente.id_ingrediente);
-                    return (
-                      <li key={ingrediente.id_ingrediente}>
-                        {ingredientObj?.nome} - {ingrediente.quantidade_ingrediente} {ingredientObj?.medida}
-                      </li>
-                    );
-                  })}
+                  {dish.ingredientes.map((ingrediente) => (
+                    <li key={ingrediente.id_ingrediente}>
+                      {ingredientOptions.find(opt => opt.id === ingrediente.id_ingrediente)?.nome} - {ingrediente.quantidade_ingrediente}
+                    </li>
+                  ))}
                 </ul>
               </li>
             ))}

@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const IngredientForm = () => {
-  const [ingredient, setIngredient] = useState({ nome: '', descricao: '', medida: 'g' });
+  const [ingredient, setIngredient] = useState({ nome: '', descricao: '' });
   const [ingredientList, setIngredientList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(''); // Novo estado para a mensagem
 
   useEffect(() => {
     const fetchIngredients = async () => {
@@ -33,18 +33,14 @@ const IngredientForm = () => {
     e.preventDefault();
     try {
       console.log('Dados do ingrediente:', ingredient);
-      const response = await axios.post('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/ingrediente', {
-        nome: ingredient.nome,
-        descricao: ingredient.descricao,
-        medida: ingredient.medida
-      });
+      const response = await axios.post('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/ingrediente', ingredient);
       console.log('Resposta da requisição POST:', response.data);
       setIngredientList(prevList => [...prevList, response.data]);
-      setIngredient({ nome: '', descricao: '', medida: 'g' });
-      setMessage('Ingrediente cadastrado com sucesso!');
+      setIngredient({ nome: '', descricao: '' });
+      setMessage('Ingrediente cadastrado com sucesso!'); // Atualiza a mensagem
     } catch (error) {
       console.error('Erro ao cadastrar ingrediente:', error);
-      setMessage('Erro ao cadastrar ingrediente. Tente novamente.');
+      setMessage('Erro ao cadastrar ingrediente. Tente novamente.'); // Atualiza a mensagem em caso de erro
     }
   };
 
@@ -67,16 +63,6 @@ const IngredientForm = () => {
               <label htmlFor="descricao" className="form-label">Descrição do Ingrediente</label>
               <input type="text" className="form-control" id="descricao" name="descricao" value={ingredient.descricao} onChange={handleChange} required />
             </div>
-            <div className="mb-3">
-              <label htmlFor="medida" className="form-label">Medida do Ingrediente</label>
-              <select className="form-control" id="medida" name="medida" value={ingredient.medida} onChange={handleChange} required>
-                <option value="g">g</option>
-                <option value="kg">kg</option>
-                <option value="l">l</option>
-                <option value="ml">ml</option>
-                <option value="un">un</option>
-              </select>
-            </div>
             <button type="submit" className="btn btn-danger">Cadastrar</button>
           </form>
 
@@ -88,7 +74,7 @@ const IngredientForm = () => {
               <ul className="list-group">
                 {ingredientList.map((ingredient, index) => (
                   <li key={index} className="list-group-item">
-                    <strong>{ingredient.nome}</strong>: {ingredient.descricao} - {ingredient.medida}
+                    <strong>{ingredient.nome}</strong>: {ingredient.descricao}
                   </li>
                 ))}
               </ul>
