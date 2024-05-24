@@ -34,7 +34,7 @@ const Menu = () => {
         <div className={`collapse navbar-collapse justify-content-center ${menuOpen ? 'show' : ''}`} id="navbarNav" style={{ marginLeft: isDesktop ? '-130px' : '0' }}> {/* Aplica a margem apenas se for uma tela de desktop */}
           <ul className="navbar-nav mx-auto">
           <li className="nav-item ms-3">
-              <Link to="/cadastro-home" className="nav-link text-white">Início</Link>
+              <Link to="/home" className="nav-link text-white">Início</Link>
             </li>
             <li className="nav-item ms-3">
               <Link to="/cadastro-ingredientes" className="nav-link text-white">Cadastrar Ingredientes</Link>

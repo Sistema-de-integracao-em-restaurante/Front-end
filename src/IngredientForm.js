@@ -12,7 +12,6 @@ const IngredientForm = () => {
       try {
         setLoading(true);
         const response = await axios.get('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/ingrediente');
-        console.log(response.data);
         setIngredientList(response.data);
       } catch (error) {
         console.error('Erro ao buscar ingredientes:', error);
@@ -32,19 +31,28 @@ const IngredientForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('Dados do ingrediente:', ingredient);
       const response = await axios.post('https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/ingrediente', {
         nome: ingredient.nome,
         descricao: ingredient.descricao,
         medida: ingredient.medida
       });
-      console.log('Resposta da requisição POST:', response.data);
       setIngredientList(prevList => [...prevList, response.data]);
       setIngredient({ nome: '', descricao: '', medida: 'g' });
       setMessage('Ingrediente cadastrado com sucesso!');
     } catch (error) {
       console.error('Erro ao cadastrar ingrediente:', error);
       setMessage('Erro ao cadastrar ingrediente. Tente novamente.');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/ingrediente/${id}`);
+      setIngredientList(prevList => prevList.filter(ingredient => ingredient.id !== id));
+      setMessage('Ingrediente removido com sucesso!');
+    } catch (error) {
+      console.error('Erro ao remover ingrediente:', error);
+      setMessage('Erro ao remover ingrediente. Verifique se ele está associado a um prato.');
     }
   };
 
@@ -87,8 +95,11 @@ const IngredientForm = () => {
             ) : (
               <ul className="list-group">
                 {ingredientList.map((ingredient, index) => (
-                  <li key={index} className="list-group-item">
-                    <strong>{ingredient.nome}</strong>: {ingredient.descricao} - {ingredient.medida}
+                  <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong>{ingredient.nome}</strong>: {ingredient.descricao} - {ingredient.medida}
+                    </div>
+                    <button onClick={() => handleDelete(ingredient.id)} className="btn btn-danger btn-sm">Excluir</button>
                   </li>
                 ))}
               </ul>

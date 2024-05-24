@@ -111,6 +111,26 @@ const OrderForm = ({ onDishAdded = () => {} }) => {
     }
   };
 
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      // Marcar o pedido como confirmado/reaberto no backend
+      await axios.post(`https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/pedido/${orderId}/${newStatus}`);
+      
+      // Atualizar localmente o status do pedido
+      const updatedOrders = orders.map(order => {
+        if (order.id === orderId) {
+          // Alterar o status de 'e' para 'c' e vice-versa
+          const newOrderStatus = newStatus === 'confirmado' ? 'c' : 'e';
+          return { ...order, status: newOrderStatus };
+        }
+        return order;
+      });
+      setOrders(updatedOrders);
+    } catch (error) {
+      console.error('Erro ao alterar status do pedido:', error);
+    }
+  };
+
   return (
     <div className="container mt-5">
       <div className="row justify-content-center">
@@ -153,35 +173,40 @@ const OrderForm = ({ onDishAdded = () => {} }) => {
                 </ul>
               </div>
             )}
-            <button type="submit" className="btn btn-danger">Enviar</button>
+            <button type="submit" className="btn btn-danger btn-primary">Enviar Pedido</button>
           </form>
         </div>
-      </div>
-      <div className="row justify-content-center mt-5">
-        <div className="col-md-8">
-          <h2 className="text-center mb-4">Pedidos Cadastrados</h2>
-          {orders.length > 0 ? (
-            <ul className="list-group">
-              {orders.map((order, index) => (
-                <li key={index} className="list-group-item">
-                  <h5>Pedido #{order.id}</h5>
-                  <p>Cliente: {order.nome_cliente}</p>
-                  <p>Forma de Pagamento: {order.forma_pagamento}</p>
-                  <p>Status: {order.status}</p>
-                  <p>Preço Total: R$ {order.preco_total_pedido.toFixed(2)}</p>
-                  <p>Pratos:</p>
-                  <ul>
-                    {order.pratos.map((dish, dishIndex) => (
-                      <li key={dishIndex}>{dish.prato.nome} - Quantidade: {dish.quantidade_prato} - Preço Total: R$ {dish.preco_total.toFixed(2)}</li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-center">Nenhum pedido cadastrado.</p>
-          )}
-        </div>
+        <div className="col-md-6">
+  <h2 className="text-center mb-4">Pedidos</h2>
+  <ul className="list-group">
+    {orders
+      .sort((a, b) => b.id - a.id) // Ordena os pedidos por ID em ordem decrescente
+      .map(order => (
+        <li key={order.id} className="list-group-item">
+          <strong>ID do Pedido:</strong> {order.id} <br />
+          <strong>Cliente:</strong> {order.nome_cliente} <br />
+          <strong>Pratos:</strong>
+          <ul>
+            {order.pratos.map((prato, index) => (
+              <li key={index}>{prato.prato.nome} - {prato.quantidade_prato} - R$ {prato.preco_total.toFixed(2)}</li>
+            ))}
+          </ul>
+          <strong>Preço Total:</strong> R$ {order.preco_total_pedido.toFixed(2)} <br />
+          <strong>Forma de Pagamento:</strong> {order.forma_pagamento} <br />
+          <strong>Status:</strong> {order.status === 'c' ? 'Confirmado' : 'Em Aberto'} <br />
+        
+          <div className="btn-group">
+            {order.status === 'c' ? (
+              <button className="btn btn-warning me-1" onClick={() => handleStatusChange(order.id, 'reaberto')}>Reabrir Pedido</button>
+            ) : (
+              <button className="btn btn-success me-1" onClick={() => handleStatusChange(order.id, 'confirmado')}>Confirmar Pedido</button>
+            )}
+          </div>
+        </li>
+      ))}
+  </ul>
+</div>
+
       </div>
     </div>
   );
