@@ -119,6 +119,17 @@ const DishForm = ({ onDishAdded }) => {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`https://restaurante-prod-mayrink-0fddee46.koyeb.app/api/prato/${id}`);
+      setDishes(prevDishes => prevDishes.filter(dish => dish.id !== id));
+      setSuccessMessage('Prato removido com sucesso!');
+    } catch (error) {
+      console.error('Erro ao remover prato:', error);
+      setSuccessMessage('Erro ao remover prato.');
+    }
+  };  
+
   return (
     <div className="container mt-5">
       <div className="row justify-content-center">
@@ -185,18 +196,19 @@ const DishForm = ({ onDishAdded }) => {
           <ul className="list-group">
             {dishes.map((dish) => (
               <li key={dish.id} className="list-group-item">
-                {dish.nome} - R${dish.preco.toFixed(2)}
-                {/* Exibe os ingredientes do prato */}
-                <ul>
-                  {dish.ingredientes.map((ingrediente) => {
-                    const ingredientObj = ingredientOptions.find(opt => opt.id === ingrediente.id_ingrediente);
-                    return (
-                      <li key={ingrediente.id_ingrediente}>
-                        {ingredientObj?.nome} - {ingrediente.quantidade_ingrediente} {ingredientObj?.medida}
-                      </li>
-                    );
-                  })}
-                </ul>
+                  {dish.nome} - R${dish.preco.toFixed(2)}
+                  {/* Exibe os ingredientes do prato */}
+                  <ul>
+                    {dish.ingredientes.map((ingrediente) => {
+                      const ingredientObj = ingredientOptions.find(opt => opt.id === ingrediente.id_ingrediente);
+                      return (
+                        <li key={ingrediente.id_ingrediente}>
+                          {ingredientObj?.nome} - {ingrediente.quantidade_ingrediente} {ingredientObj?.medida}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                <button onClick={() => handleDelete(dish.id)} className="btn btn-danger btn-sm">Excluir</button>
               </li>
             ))}
           </ul>
