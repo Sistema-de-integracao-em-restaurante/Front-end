@@ -11,6 +11,7 @@ import OrderForm from './OrderForm';
 import './index.css'; // Import do arquivo CSS global
 
 const App = () => {
+  // eslint-disable-next-line
   const [dishes, setDishes] = useState([]);
 
   const handleDishAdded = (newDish) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import connection from './images/restaurantmenor.png';
 import restaurant from './images/Restaurant.png'; 
 
