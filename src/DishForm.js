@@ -126,7 +126,7 @@ const DishForm = ({ onDishAdded }) => {
       setSuccessMessage('Prato removido com sucesso!');
     } catch (error) {
       console.error('Erro ao remover prato:', error);
-      setSuccessMessage('Erro ao remover prato.');
+      setSuccessMessage('Erro ao remover prato. Esse prato está vinculado a um ingrediente ou pedido.');
     }
   };  
 
