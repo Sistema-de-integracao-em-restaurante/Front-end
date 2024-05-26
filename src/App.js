@@ -5,7 +5,7 @@ import Menu from './Menu';
 import Home from './Home';
 import IngredientForm from './IngredientForm';
 import DishForm from './DishForm';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import OrderForm from './OrderForm';
 
 import './index.css'; // Import do arquivo CSS global
@@ -25,6 +25,7 @@ const App = () => {
         <Route path="/cadastro-ingredientes" element={<IngredientForm />} />
         <Route path="/cadastro-pratos" element={<DishForm onDishAdded={handleDishAdded} />} />
         <Route path="/cadastro-pedidos" element={<OrderForm />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </Router>
   );
