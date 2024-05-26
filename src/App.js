@@ -5,7 +5,7 @@ import Menu from './Menu';
 import Home from './Home';
 import IngredientForm from './IngredientForm';
 import DishForm from './DishForm';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import OrderForm from './OrderForm';
 
 import './index.css'; // Import do arquivo CSS global
