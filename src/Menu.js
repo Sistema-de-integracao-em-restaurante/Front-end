@@ -45,6 +45,9 @@ const Menu = () => {
             <li className="nav-item ms-3">
               <Link to="/cadastro-pedidos" className="nav-link text-white">Cadastrar Pedidos</Link>
             </li>
+            <li className="nav-item ms-3">
+              <Link to="/integracao" className="nav-link text-white">Integração</Link>
+            </li>
           </ul>
         </div>
       </div>
